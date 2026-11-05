@@ -1,0 +1,8 @@
+com.company.commonstarter.autoconfigure.CorrelationIdAutoConfiguration
+com.company.commonstarter.autoconfigure.LoggingAutoConfiguration
+com.company.commonstarter.autoconfigure.MaskingAutoConfiguration
+com.company.commonstarter.autoconfigure.ErrorHandlingAutoConfiguration
+com.company.commonstarter.autoconfigure.AuthenticationErrorHandlingAutoConfiguration
+com.company.commonstarter.autoconfigure.JwtClientAutoConfiguration
+com.company.commonstarter.autoconfigure.SwaggerAutoConfiguration
+com.company.commonstarter.autoconfigure.SecurityAutoConfiguration

@@ -1,0 +1,51 @@
+name: Branch Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Delete Feature Branch
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
+          BASE_REPO="${{ github.repository }}"
+
+          echo "Branch: $BRANCH"
+          echo "Head repository: $HEAD_REPO"
+          echo "Base repository: $BASE_REPO"
+
+          if [ "$HEAD_REPO" != "$BASE_REPO" ]; then
+            echo "⚠️  Skipping deletion: PR from fork"
+            exit 0
+          fi
+
+          if [[ "$BRANCH" =~ ^(feature|bugfix|hotfix|release)/.+ ]]; then
+            echo "🗑️  Deleting branch: $BRANCH"
+            git push origin --delete "$BRANCH" || echo "⚠️  Branch already deleted or not found"
+            echo "✅ Branch cleanup completed"
+          else
+            echo "ℹ️  Skipping deletion: Not a feature-like branch pattern"
+          fi
+
+      - name: Summary
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          echo "## 🧹 Branch Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** \`$BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Merged to:** \`${{ github.event.pull_request.base.ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** Deleted" >> $GITHUB_STEP_SUMMARY
